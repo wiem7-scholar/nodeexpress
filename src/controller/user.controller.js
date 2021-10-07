@@ -57,7 +57,8 @@ function createUserHandler(req, res) {
                 case 2:
                     e_1 = _a.sent();
                     logger_1.default.error(e_1);
-                    return [2 /*return*/, res.status(409).send(e_1.message)];
+                    res.status(409).send(e_1.message);
+                    return [3 /*break*/, 3];
                 case 3: return [2 /*return*/];
             }
         });

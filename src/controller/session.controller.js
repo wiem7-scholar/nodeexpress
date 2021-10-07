@@ -39,46 +39,69 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var mongoose_1 = __importDefault(require("mongoose")); // mongoose is an Object Data Modeling lib for MongoDB
-var bcrypt_1 = __importDefault(require("bcrypt")); // we are storing hashes of passwords not plain text
+exports.getUserSessionHandler = exports.invalidateUserSessionHandler = exports.createUserSessionHandler = void 0;
+var user_service_1 = require("../service/user.service");
+var session_service_1 = require("../service/session.service");
 var default_1 = __importDefault(require("../../config/default"));
-//create a mongoose schema where we
-var UserSchema = new mongoose_1.default.Schema({
-    email: { type: String, required: true, unique: true },
-    name: { type: String, required: true },
-    password: { type: String, required: true },
-}, { timestamps: true });
-// get a user password in hash
-UserSchema.pre("save", function (next) {
+var jwt_utils_1 = require("../utils/jwt.utils");
+var lodash_1 = require("lodash");
+function createUserSessionHandler(req, res) {
     return __awaiter(this, void 0, void 0, function () {
-        var user, salt, hash;
+        var user, session, accessToken, refreshToken;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0:
-                    user = this;
-                    //only hash the password  if it is modified or new
-                    if (!user.isModified("password"))
-                        return [2 /*return*/, next()];
-                    return [4 /*yield*/, bcrypt_1.default.genSalt(default_1.default["saltWorkFactor"])];
+                case 0: return [4 /*yield*/, (0, user_service_1.validatePassword)(req.body)];
                 case 1:
-                    salt = _a.sent();
-                    hash = bcrypt_1.default.hashSync(user.password, salt);
-                    // replace password with hash
-                    user.password = hash;
-                    return [2 /*return*/, next()];
+                    user = _a.sent();
+                    if (!user) {
+                        return [2 /*return*/, res.status(401).send("invalid username or password")];
+                    }
+                    return [4 /*yield*/, (0, session_service_1.createSession)(user._id, req.get("user-agent") || "")];
+                case 2:
+                    session = _a.sent();
+                    accessToken = (0, session_service_1.createAccessToken)({
+                        user: user,
+                        session: session,
+                    });
+                    refreshToken = (0, jwt_utils_1.sign)(session, {
+                        expiresIn: default_1.default["refreshTokenTtl"],
+                    });
+                    // Send refresh & access token back
+                    return [2 /*return*/, res.send({ accessToken: accessToken, refreshToken: refreshToken })];
             }
         });
     });
-});
-// comparePassword method used for logging in
-UserSchema.methods.comparePassword = function (candidatePassword) {
+}
+exports.createUserSessionHandler = createUserSessionHandler;
+function invalidateUserSessionHandler(req, res) {
     return __awaiter(this, void 0, void 0, function () {
-        var user;
+        var sessionId;
         return __generator(this, function (_a) {
-            user = this;
-            return [2 /*return*/, bcrypt_1.default.compare(candidatePassword, user.password).catch(function (e) { return false; })];
+            switch (_a.label) {
+                case 0:
+                    sessionId = (0, lodash_1.get)(req, "user.session");
+                    return [4 /*yield*/, (0, session_service_1.updateSession)({ _id: sessionId }, { valid: false })];
+                case 1:
+                    _a.sent();
+                    return [2 /*return*/, res.sendStatus(200)];
+            }
         });
     });
-};
-var User = mongoose_1.default.model("User", UserSchema); // if we dont pass the interface UserDocument , we get an empty schema
-exports.default = User;
+}
+exports.invalidateUserSessionHandler = invalidateUserSessionHandler;
+function getUserSessionHandler(req, res) {
+    return __awaiter(this, void 0, void 0, function () {
+        var userId, sessions;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    userId = (0, lodash_1.get)(req, "user.id");
+                    return [4 /*yield*/, (0, session_service_1.findSessions)({ user: userId, valid: true })];
+                case 1:
+                    sessions = _a.sent();
+                    return [2 /*return*/, res.send(sessions)];
+            }
+        });
+    });
+}
+exports.getUserSessionHandler = getUserSessionHandler;

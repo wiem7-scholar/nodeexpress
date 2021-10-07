@@ -4,10 +4,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var mongoose_1 = __importDefault(require("mongoose"));
-var config_1 = __importDefault(require("config"));
+var default_1 = __importDefault(require("../../config/default"));
 var logger_1 = __importDefault(require("../logger"));
 function connect() {
-    var dbUri = config_1.default.get("dbUri");
+    var dbUri = default_1.default["dbUri"];
     return mongoose_1.default
         .connect(dbUri, {
         useNewUrlParser: true,

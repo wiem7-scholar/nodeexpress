@@ -1,6 +1,6 @@
 import mongoose from "mongoose";// mongoose is an Object Data Modeling lib for MongoDB
 import bcrypt from "bcrypt";// we are storing hashes of passwords not plain text
-import config from "config";
+import config from "../../config/default";
 
 //create interface for user
 export interface UserDocument extends mongoose.Document {
@@ -29,9 +29,9 @@ UserSchema.pre("save", async function (next: mongoose.HookNextFunction){ //middl
     let user = this as UserDocument ;
     //only hash the password  if it is modified or new
     if(!user.isModified("password")) return next();
-    //salt and hash
-    const salt =await bcrypt.genSalt(config.get("saltWorkFactor"));//adds a random number to the password hash
-    const hash= await bcrypt.hashSync(user.password, salt);
+    //salt and hash random additional data
+    const salt =await bcrypt.genSalt(config["saltWorkFactor"]);//adds a random number to the password hash
+    const hash= bcrypt.hashSync(user.password, salt);
     // replace password with hash
     user.password = hash;
 
@@ -42,7 +42,7 @@ UserSchema.pre("save", async function (next: mongoose.HookNextFunction){ //middl
 
 
 
-// comparePassword method
+// comparePassword method used for logging in
 UserSchema.methods.comparePassword = async function(
     candidatePassword:string
 ){
@@ -52,7 +52,5 @@ UserSchema.methods.comparePassword = async function(
 
 
 
-
-
-const User = mongoose.model<UserDocument>("User",UserSchema);// if we dont pass the interface UserDocumet , we get an empty schema
+const User = mongoose.model<UserDocument>("User",UserSchema);// if we dont pass the interface UserDocument , we get an empty schema
 export default User;

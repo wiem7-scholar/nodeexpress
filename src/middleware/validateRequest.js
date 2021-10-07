@@ -57,7 +57,7 @@ var validate = function (schema) { return function (req, res, next) { return __a
             case 2:
                 e_1 = _a.sent();
                 logger_1.default.error(e_1);
-                return [2 /*return*/, res.status(400).send(e_1.error)];
+                return [2 /*return*/, res.status(400).send(e_1)];
             case 3: return [2 /*return*/];
         }
     });

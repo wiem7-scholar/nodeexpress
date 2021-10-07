@@ -35,50 +35,39 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-var mongoose_1 = __importDefault(require("mongoose")); // mongoose is an Object Data Modeling lib for MongoDB
-var bcrypt_1 = __importDefault(require("bcrypt")); // we are storing hashes of passwords not plain text
-var default_1 = __importDefault(require("../../config/default"));
-//create a mongoose schema where we
-var UserSchema = new mongoose_1.default.Schema({
-    email: { type: String, required: true, unique: true },
-    name: { type: String, required: true },
-    password: { type: String, required: true },
-}, { timestamps: true });
-// get a user password in hash
-UserSchema.pre("save", function (next) {
-    return __awaiter(this, void 0, void 0, function () {
-        var user, salt, hash;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    user = this;
-                    //only hash the password  if it is modified or new
-                    if (!user.isModified("password"))
-                        return [2 /*return*/, next()];
-                    return [4 /*yield*/, bcrypt_1.default.genSalt(default_1.default["saltWorkFactor"])];
-                case 1:
-                    salt = _a.sent();
-                    hash = bcrypt_1.default.hashSync(user.password, salt);
-                    // replace password with hash
-                    user.password = hash;
+var lodash_1 = require("lodash");
+var jwt_utils_1 = require("../utils/jwt.utils");
+var session_service_1 = require("../service/session.service");
+var deserializeUser = function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
+    var accessToken, refreshToken, _a, decoded, expired, newAccessToken, decoded_1;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
+            case 0:
+                accessToken = (0, lodash_1.get)(req, "header.authorisation", "").replace(/^Bearer\s/, "");
+                refreshToken = (0, lodash_1.get)(req, "headers.x-refresh");
+                if (!accessToken)
                     return [2 /*return*/, next()];
-            }
-        });
+                _a = (0, jwt_utils_1.decode)(accessToken), decoded = _a.decoded, expired = _a.expired;
+                if (decoded) {
+                    // @ts-ignore
+                    req.user = decoded;
+                    return [2 /*return*/, next()];
+                }
+                if (!(expired && refreshToken)) return [3 /*break*/, 2];
+                return [4 /*yield*/, (0, session_service_1.reIssueAccessToken)({ refreshToken: refreshToken })];
+            case 1:
+                newAccessToken = _b.sent();
+                if (newAccessToken) {
+                    // add the access token to the header
+                    res.setHeader("x-access-token", newAccessToken);
+                    decoded_1 = (0, jwt_utils_1.decode)(newAccessToken).decoded;
+                    // @ts-ignore
+                    req.user = decoded_1;
+                }
+                return [2 /*return*/, next()];
+            case 2: return [2 /*return*/, next()];
+        }
     });
-});
-// comparePassword method used for logging in
-UserSchema.methods.comparePassword = function (candidatePassword) {
-    return __awaiter(this, void 0, void 0, function () {
-        var user;
-        return __generator(this, function (_a) {
-            user = this;
-            return [2 /*return*/, bcrypt_1.default.compare(candidatePassword, user.password).catch(function (e) { return false; })];
-        });
-    });
-};
-var User = mongoose_1.default.model("User", UserSchema); // if we dont pass the interface UserDocument , we get an empty schema
-exports.default = User;
+}); };
+exports.default = deserializeUser;

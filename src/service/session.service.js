@@ -1,4 +1,15 @@
 "use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -39,58 +50,75 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.validatePassword = exports.findUser = exports.createUser = void 0;
-var user_model_1 = __importDefault(require("../model/user.model"));
-var mongoose_1 = require("mongoose");
+exports.findSessions = exports.updateSession = exports.reIssueAccessToken = exports.createAccessToken = exports.createSession = void 0;
+var session_model_1 = __importDefault(require("../model/session.model"));
+var default_1 = __importDefault(require("../../config/default"));
+var jwt_utils_1 = require("../utils/jwt.utils");
 var lodash_1 = require("lodash");
-function createUser(input) {
+var user_service_1 = require("./user.service");
+function createSession(userId, userAgent) {
     return __awaiter(this, void 0, void 0, function () {
-        var e_1;
+        var session;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0:
-                    _a.trys.push([0, 2, , 3]);
-                    return [4 /*yield*/, user_model_1.default.create(input)];
-                case 1: return [2 /*return*/, _a.sent()];
-                case 2:
-                    e_1 = _a.sent();
-                    throw new mongoose_1.Error(e_1);
-                case 3: return [2 /*return*/];
+                case 0: return [4 /*yield*/, session_model_1.default.create({ user: userId, userAgent: userAgent })];
+                case 1:
+                    session = _a.sent();
+                    return [2 /*return*/, session.toJSON()];
             }
         });
     });
 }
-exports.createUser = createUser;
-function findUser(query) {
-    return __awaiter(this, void 0, void 0, function () {
-        return __generator(this, function (_a) {
-            return [2 /*return*/, user_model_1.default.findOne(query).lean()];
-        });
-    });
+exports.createSession = createSession;
+function createAccessToken(_a) {
+    var user = _a.user, session = _a.session;
+    // Build and return the new access token
+    var accessToken = (0, jwt_utils_1.sign)(__assign(__assign({}, user), { session: session._id }), { expiresIn: default_1.default["accessTokenTtl"] } // 15 minutes
+    );
+    return accessToken;
 }
-exports.findUser = findUser;
-// validate the password
-function validatePassword(_a) {
-    var email = _a.email, password = _a.password;
+exports.createAccessToken = createAccessToken;
+function reIssueAccessToken(_a) {
+    var refreshToken = _a.refreshToken;
     return __awaiter(this, void 0, void 0, function () {
-        var user, isValid;
+        var decoded, session, user, accessToken;
         return __generator(this, function (_b) {
             switch (_b.label) {
-                case 0: return [4 /*yield*/, user_model_1.default.findOne({ email: email })];
+                case 0:
+                    decoded = (0, jwt_utils_1.decode)(refreshToken).decoded;
+                    if (!decoded || !(0, lodash_1.get)(decoded, "_id"))
+                        return [2 /*return*/, false];
+                    return [4 /*yield*/, session_model_1.default.findById((0, lodash_1.get)(decoded, "_id"))];
                 case 1:
-                    user = _b.sent();
-                    if (!user) {
+                    session = _b.sent();
+                    //make sure the session is still valid
+                    if (!session || !(session === null || session === void 0 ? void 0 : session.valid))
                         return [2 /*return*/, false];
-                    }
-                    return [4 /*yield*/, user.comparePassword(password)];
+                    return [4 /*yield*/, (0, user_service_1.findUser)({ _id: session.user })];
                 case 2:
-                    isValid = _b.sent();
-                    if (!isValid) {
+                    user = _b.sent();
+                    if (!user)
                         return [2 /*return*/, false];
-                    }
-                    return [2 /*return*/, (0, lodash_1.omit)(user.toJSON(), "password")];
+                    accessToken = createAccessToken({ user: user, session: session });
+                    return [2 /*return*/, accessToken];
             }
         });
     });
 }
-exports.validatePassword = validatePassword;
+exports.reIssueAccessToken = reIssueAccessToken;
+function updateSession(query, update) {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            return [2 /*return*/, session_model_1.default.updateOne(query, update)];
+        });
+    });
+}
+exports.updateSession = updateSession;
+function findSessions(query) {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            return [2 /*return*/, session_model_1.default.find(query).lean()];
+        });
+    });
+}
+exports.findSessions = findSessions;
