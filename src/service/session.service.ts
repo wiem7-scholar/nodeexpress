@@ -34,9 +34,10 @@ export function createAccessToken(
     return accessToken;
 }
 
-export async function reIssueAccessToken({
-                                       refreshToken,
-                                   }: {
+export async function reIssueAccessToken(
+    {
+        refreshToken,
+    }: {
     refreshToken: string;
 }){
     //decode the refresh token
@@ -62,6 +63,11 @@ export async function updateSession(
 }
 
 export async function findSessions(query: FilterQuery<SessionDocument>){
-    return Session.find(query).lean();
+    let sessions = await Session.findOne({});
+    console.log(sessions);
+    return Session.findOne(query).lean();
 }
 
+//export async function findSessions(query: FilterQuery<SessionDocument>) {
+//return Session.find(query).lean();
+//}

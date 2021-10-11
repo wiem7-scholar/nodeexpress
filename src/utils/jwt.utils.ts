@@ -5,7 +5,7 @@ import config from "../../config/default";
 
 const privateKey = config["privateKey"] as string;
 
-export function sign( object: any, options: any){
+export function sign( object: Object, options?: jwt.SignOptions | undefined){
     return jwt.sign(object, privateKey, options);
 }
 

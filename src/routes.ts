@@ -9,7 +9,7 @@ export default function (app:Express){
 
  // user registration because rest performs crud operations n uses http methods we create
  //post/api/user
- //we built´d the handler for this route
+ //we build the handler for this route
 app.post("/api/users",validateRequest(createUserSchema), createUserHandler);
 
 
@@ -23,7 +23,7 @@ app.post("/api/sessions",
  // get user s sessions
  // GET/api/sessions
 
-app.get("api/sessions", requiresUser, getUserSessionHandler);
+app.get("/api/sessions", requiresUser, getUserSessionHandler);
 
 
  // logout

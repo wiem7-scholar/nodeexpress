@@ -1,4 +1,3 @@
-
 import {Request, Response, NextFunction} from "express";
 import {get} from "lodash";
 import {decode} from "../utils/jwt.utils";
@@ -11,7 +10,9 @@ const deserializeUser = async (
     next: NextFunction
 
 ) => {
-    const accessToken =get(req, "header.authorisation","").replace(
+
+    console.log("deserialize222");
+    const accessToken =get(req, "headers.authorization","").replace(
         /^Bearer\s/,
         ""
     );

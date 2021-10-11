@@ -4,6 +4,9 @@ import { createSession, createAccessToken ,updateSession, findSessions} from '..
 import config from "../../config/default";
 import {sign } from "../utils/jwt.utils";
 import {get} from "lodash";
+import {Types} from "mongoose";
+import {ObjectId} from "mongodb";
+
 
 export async function createUserSessionHandler(req: Request, res: Response) {
 
@@ -16,6 +19,7 @@ export async function createUserSessionHandler(req: Request, res: Response) {
 
     //Create a session
     const session = await createSession(user._id, req.get("user-agent") || "");
+
     //Create access token
     const accessToken = createAccessToken({
         user,
@@ -38,7 +42,15 @@ return res.sendStatus(200);
 }
 
 export async function getUserSessionHandler(req:Request,res:Response){
-    const userId= get(req, "user.id");
+    let userId= get(req, "user._id");
+    userId = new ObjectId(userId);
     const sessions= await findSessions({user: userId, valid: true});
     return res.send(sessions);
 }
+
+//export async function getUserSessionsHandler(req: Request, res: Response) {
+//   const userId = get(req, "user._id");
+//
+//   const sessions = await findSessions({ user: userId, valid: true });
+//
+//   return res.send(sessions);

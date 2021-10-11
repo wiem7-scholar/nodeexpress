@@ -7,6 +7,7 @@ const requiresUser= async (
     next: NextFunction
 ) => {
     const user = get(req, "user");
+    console.log(user);
     if(!user){
         return res.sendStatus(403);
     }
