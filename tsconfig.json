@@ -9,7 +9,8 @@
     "declaration": false,
     "watch": false,
     "experimentalDecorators": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "esModuleInterop": true
   },
   "exclude": [
     "node_modules",

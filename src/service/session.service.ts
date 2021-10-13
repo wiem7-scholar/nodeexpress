@@ -26,7 +26,7 @@ export function createAccessToken(
             | LeanDocument<Omit<SessionDocument, "password">>;
     }) {
     // Build and return the new access token
-    const accessToken = sign(
+    const accessToken = await sign(
         {...user, session: session._id},
         {expiresIn: config["accessTokenTtl"]} // 15 minutes
     );
@@ -41,7 +41,7 @@ export async function reIssueAccessToken(
     refreshToken: string;
 }){
     //decode the refresh token
-    const{ decoded} = decode(refreshToken);
+    const { decoded } = await decode(refreshToken);
     if (!decoded || !get(decoded, "_id")) return false;
 //get the session
 const session = await Session.findById(get(decoded, "_id"));
@@ -63,11 +63,6 @@ export async function updateSession(
 }
 
 export async function findSessions(query: FilterQuery<SessionDocument>){
-    let sessions = await Session.findOne({});
-    console.log(sessions);
-    return Session.findOne(query).lean();
+    return Session.find(query).lean();
 }
 
-//export async function findSessions(query: FilterQuery<SessionDocument>) {
-//return Session.find(query).lean();
-//}

@@ -1,10 +1,13 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = require("express");
-const default_1 = require("../config/default");
-const logger_1 = require("./logger");
-const connect_1 = require("./db/connect");
-const routes_1 = require("./routes");
+const express_1 = __importDefault(require("express"));
+const default_1 = __importDefault(require("../config/default"));
+const logger_1 = __importDefault(require("./logger"));
+const connect_1 = __importDefault(require("./db/connect"));
+const routes_1 = __importDefault(require("./routes"));
 const middleware_1 = require("./middleware");
 const port = default_1.default["port"];
 const host = default_1.default["host"];

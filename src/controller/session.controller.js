@@ -1,9 +1,12 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getUserSessionHandler = exports.invalidateUserSessionHandler = exports.createUserSessionHandler = void 0;
 const user_service_1 = require("../service/user.service");
 const session_service_1 = require("../service/session.service");
-const default_1 = require("../../config/default");
+const default_1 = __importDefault(require("../../config/default"));
 const jwt_utils_1 = require("../utils/jwt.utils");
 const lodash_1 = require("lodash");
 const mongodb_1 = require("mongodb");

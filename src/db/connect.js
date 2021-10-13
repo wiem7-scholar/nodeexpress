@@ -1,12 +1,16 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const mongoose_1 = require("mongoose");
-const default_1 = require("../../config/default");
-const logger_1 = require("../logger");
+const mongoose_1 = __importDefault(require("mongoose"));
+const default_1 = __importDefault(require("../../config/default"));
+const logger_1 = __importDefault(require("../logger"));
 function connect() {
     const dbUri = default_1.default["dbUri"];
     return mongoose_1.default
         .connect(dbUri, {
+        useCreateIndex: true,
         useNewUrlParser: true,
         useUnifiedTopology: true,
     })

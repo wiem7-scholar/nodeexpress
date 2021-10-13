@@ -1,8 +1,11 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const mongoose_1 = require("mongoose"); // mongoose is an Object Data Modeling lib for MongoDB
-const bcrypt_1 = require("bcrypt"); // we are storing hashes of passwords not plain text
-const default_1 = require("../../config/default");
+const mongoose_1 = __importDefault(require("mongoose")); // mongoose is an Object Data Modeling lib for MongoDB
+const bcrypt_1 = __importDefault(require("bcrypt")); // we are storing hashes of passwords not plain text
+const default_1 = __importDefault(require("../../config/default"));
 //create a mongoose schema where we
 const UserSchema = new mongoose_1.default.Schema({
     email: { type: String, required: true, unique: true },

@@ -1,7 +1,10 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.validatePassword = exports.findUser = exports.createUser = void 0;
-const user_model_1 = require("../model/user.model");
+const user_model_1 = __importDefault(require("../model/user.model"));
 const mongoose_1 = require("mongoose");
 const lodash_1 = require("lodash");
 async function createUser(input) {
