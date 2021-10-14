@@ -7,7 +7,7 @@ const payload = {
         title: (0, yup_1.string)().required("Title is required"),
         body: (0, yup_1.string)()
             .required("Body is required")
-            .min(120, "Body is too short - should be 120 chars minimum."),
+            .min(10, "Body is too short - should be 120 chars minimum."),
     }),
 };
 const params = {

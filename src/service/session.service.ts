@@ -13,7 +13,7 @@ export async function createSession(userId: string, userAgent: string) {
 }
 
 
-export function createAccessToken(
+export async function createAccessToken(
     {
         user,
         session,

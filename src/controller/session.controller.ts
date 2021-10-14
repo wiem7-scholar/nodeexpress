@@ -21,13 +21,13 @@ export async function createUserSessionHandler(req: Request, res: Response) {
     const session = await createSession(user._id, req.get("user-agent") || "");
 
     //Create access token
-    const accessToken = createAccessToken({
+    const accessToken = await createAccessToken({
         user,
         session,
     });
 
     //Create refresh token
-    const refreshToken = sign(session,{
+    const refreshToken = await sign(session,{
     expiresIn: config["refreshTokenTtl"],});
 
     // Send refresh & access token back

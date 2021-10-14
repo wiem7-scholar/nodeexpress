@@ -14,7 +14,7 @@ async function createSession(userId, userAgent) {
     return session.toJSON();
 }
 exports.createSession = createSession;
-function createAccessToken({ user, session, }) {
+async function createAccessToken({ user, session, }) {
     // Build and return the new access token
     const accessToken = await (0, jwt_utils_1.sign)(Object.assign(Object.assign({}, user), { session: session._id }), { expiresIn: default_1.default["accessTokenTtl"] } // 15 minutes
     );

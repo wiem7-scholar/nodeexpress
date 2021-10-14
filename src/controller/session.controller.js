@@ -19,12 +19,12 @@ async function createUserSessionHandler(req, res) {
     //Create a session
     const session = await (0, session_service_1.createSession)(user._id, req.get("user-agent") || "");
     //Create access token
-    const accessToken = (0, session_service_1.createAccessToken)({
+    const accessToken = await (0, session_service_1.createAccessToken)({
         user,
         session,
     });
     //Create refresh token
-    const refreshToken = (0, jwt_utils_1.sign)(session, {
+    const refreshToken = await (0, jwt_utils_1.sign)(session, {
         expiresIn: default_1.default["refreshTokenTtl"],
     });
     // Send refresh & access token back
